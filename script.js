@@ -900,16 +900,18 @@ function processVoiceCommand(command) {
 // --- Touch Control System ---
 let touchStartX = 0;
 let touchStartY = 0;
-let lastTapTime = 0;
-const DOUBLE_TAP_DELAY = 300; // ms
-const SWIPE_THRESHOLD = 20; // px (Lowered for better sensitivity)
+const SWIPE_THRESHOLD = 20; // px
 
 function handleTouchStart(e) {
     if (!isGameActive) return;
     
-    // Prevent default to stop scrolling/zooming while playing
-    // We check if the target is NOT a button to allow clicking UI controls if needed
-    if (e.target.tagName !== 'BUTTON' && e.cancelable) {
+    // If touching a button, let the browser handle the click and DO NOT track swipe
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+        return;
+    }
+    
+    // Block default scrolling/zooming for game area touches
+    if (e.cancelable) {
         e.preventDefault();
     }
     
@@ -921,7 +923,12 @@ function handleTouchStart(e) {
 function handleTouchEnd(e) {
     if (!isGameActive) return;
     
-    if (e.target.tagName !== 'BUTTON' && e.cancelable) {
+    // If touching a button, ignore game logic (let click handler work)
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+        return;
+    }
+    
+    if (e.cancelable) {
         e.preventDefault();
     }
 
@@ -932,9 +939,8 @@ function handleTouchEnd(e) {
     const absX = Math.abs(deltaX);
     const absY = Math.abs(deltaY);
 
-    // 1. Check for Swipe
+    // 1. Check for Swipe (Movement)
     if (Math.max(absX, absY) > SWIPE_THRESHOLD) {
-        // It's a swipe
         if (absX > absY) {
             // Horizontal
             movePlayer(deltaX > 0 ? 1 : -1, 0);
@@ -943,29 +949,62 @@ function handleTouchEnd(e) {
             movePlayer(0, deltaY > 0 ? 1 : -1);
         }
     } else {
-        // 2. It's a Tap (movement < threshold)
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTapTime;
-
-        if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
-            // Double Tap -> Place Flag
-            placeFlag();
-            lastTapTime = 0; // Reset to prevent triple-tap triggering again
-        } else {
-            // Single Tap -> Check Flags
-            lastTapTime = currentTime;
-            setTimeout(() => {
-                if (lastTapTime === currentTime) {
-                     checkFlags();
-                }
-            }, DOUBLE_TAP_DELAY);
-        }
+        // 2. It's a Tap (No movement) -> Place Flag
+        // User requested: "Aplastes una vez para poner una bandera"
+        placeFlag();
     }
 }
 
-// Add Touch Listeners to DOCUMENT to capture swipes anywhere
+// --- Shake Detection (Panic Mode) ---
+let lastX, lastY, lastZ;
+let lastShakeTime = 0;
+const SHAKE_THRESHOLD = 15; // Sensitivity
+
+function handleShake(e) {
+    if (!isGameActive) return;
+
+    const current = e.accelerationIncludingGravity;
+    if (!current) return;
+
+    const currentTime = new Date().getTime();
+    if ((currentTime - lastShakeTime) > 100) {
+        const diffTime = currentTime - lastShakeTime;
+        lastShakeTime = currentTime;
+
+        if (lastX === undefined) {
+            lastX = current.x;
+            lastY = current.y;
+            lastZ = current.z;
+            return;
+        }
+
+        const deltaX = Math.abs(lastX - current.x);
+        const deltaY = Math.abs(lastY - current.y);
+        const deltaZ = Math.abs(lastZ - current.z);
+
+        if ((deltaX > SHAKE_THRESHOLD && deltaY > SHAKE_THRESHOLD) || 
+            (deltaX > SHAKE_THRESHOLD && deltaZ > SHAKE_THRESHOLD) || 
+            (deltaY > SHAKE_THRESHOLD && deltaZ > SHAKE_THRESHOLD)) {
+            
+            // Shake detected!
+            usePanicMode();
+            // Vibrate to confirm shake detection
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
+
+        lastX = current.x;
+        lastY = current.y;
+        lastZ = current.z;
+    }
+}
+
+// Add Touch Listeners
 document.addEventListener('touchstart', handleTouchStart, {passive: false});
 document.addEventListener('touchend', handleTouchEnd, {passive: false});
+// Add Shake Listener
+if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', handleShake, false);
+}
 
 // Event Listeners
 document.addEventListener('keydown', (e) => {
@@ -1017,5 +1056,18 @@ micBtn.addEventListener('click', toggleVoiceControl);
 document.getElementById('music-btn').addEventListener('click', toggleMusic);
 menuThemeBtn.addEventListener('click', toggleTheme);
 themeBtn.addEventListener('click', toggleTheme);
+document.getElementById('mobile-help-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    usePanicMode();
+});
+
+// Unlock Vibration API on first interaction
+function unlockVibration() {
+    if (navigator.vibrate) {
+        try { navigator.vibrate(1); } catch(e) {}
+    }
+}
+campaignBtn.addEventListener('click', unlockVibration);
+freePlayBtn.addEventListener('click', unlockVibration);
 
 initVoiceControl();
