@@ -886,6 +886,69 @@ function processVoiceCommand(command) {
     }
 }
 
+// --- Touch Control System ---
+let touchStartX = 0;
+let touchStartY = 0;
+let lastTapTime = 0;
+const DOUBLE_TAP_DELAY = 300; // ms
+const SWIPE_THRESHOLD = 30; // px
+
+function handleTouchStart(e) {
+    if (!isGameActive) return;
+    // Prevent default to stop scrolling/zooming while playing
+    if (e.cancelable) e.preventDefault();
+    
+    const touch = e.changedTouches[0];
+    touchStartX = touch.screenX;
+    touchStartY = touch.screenY;
+}
+
+function handleTouchEnd(e) {
+    if (!isGameActive) return;
+    if (e.cancelable) e.preventDefault();
+
+    const touch = e.changedTouches[0];
+    const deltaX = touch.screenX - touchStartX;
+    const deltaY = touch.screenY - touchStartY;
+    
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+
+    // 1. Check for Swipe
+    if (Math.max(absX, absY) > SWIPE_THRESHOLD) {
+        // It's a swipe
+        if (absX > absY) {
+            // Horizontal
+            movePlayer(deltaX > 0 ? 1 : -1, 0);
+        } else {
+            // Vertical
+            movePlayer(0, deltaY > 0 ? 1 : -1);
+        }
+    } else {
+        // 2. It's a Tap (movement < threshold)
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+
+        if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
+            // Double Tap -> Place Flag
+            placeFlag();
+            lastTapTime = 0; // Reset to prevent triple-tap triggering again
+        } else {
+            // Single Tap -> Check Flags
+            lastTapTime = currentTime;
+            setTimeout(() => {
+                if (lastTapTime === currentTime) {
+                     checkFlags();
+                }
+            }, DOUBLE_TAP_DELAY);
+        }
+    }
+}
+
+// Add Touch Listeners
+gameBoard.addEventListener('touchstart', handleTouchStart, {passive: false});
+gameBoard.addEventListener('touchend', handleTouchEnd, {passive: false});
+
 // Event Listeners
 document.addEventListener('keydown', (e) => {
     if (!isGameActive) return;
@@ -906,11 +969,11 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowRight':
             e.preventDefault();
             movePlayer(1, 0);
-themeBtn.addEventListener('click', toggleTheme);
             break;
         case ' ': // Spacebar
             e.preventDefault();
             placeFlag();
+            break;
         case 'f':
         case 'F':
             e.preventDefault();
@@ -935,7 +998,6 @@ backMenuBtn.addEventListener('click', showMenu);
 micBtn.addEventListener('click', toggleVoiceControl);
 document.getElementById('music-btn').addEventListener('click', toggleMusic);
 menuThemeBtn.addEventListener('click', toggleTheme);
-
-
 themeBtn.addEventListener('click', toggleTheme);
+
 initVoiceControl();
