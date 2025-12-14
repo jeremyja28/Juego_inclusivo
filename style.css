@@ -1,0 +1,213 @@
+﻿/* High Contrast & Accessibility Focused CSS */
+
+:root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --wall-color: #ffffff;
+    --path-color: #000000;
+    --player-color: #0000ff; /* Blue */
+    --goal-color: #00ff00;   /* Green */
+    --flag-color: #ffff00;   /* Yellow */
+    --focus-outline: 3px solid #ff00ff;
+    --grid-line-color: #333;
+}
+
+/* Theme: High Contrast (Black/Yellow) */
+.theme-high-contrast {
+    --bg-color: #000000;
+    --text-color: #ffff00;
+    --wall-color: #ffff00;
+    --path-color: #000000;
+    --player-color: #00ffff; /* Cyan */
+    --goal-color: #ff0000;   /* Red */
+    --flag-color: #ffffff;
+    --focus-outline: 3px solid #ffffff;
+    --grid-line-color: #ffff00;
+}
+
+/* Theme: Paper (Cream/Dark Grey) */
+.theme-paper {
+    --bg-color: #fdf6e3;
+    --text-color: #333333;
+    --wall-color: #333333;
+    --path-color: #fdf6e3;
+    --player-color: #d33682; /* Magenta for better contrast */
+    --goal-color: #859900;   /* Green */
+    --flag-color: #b58900;   /* Yellow/Orange */
+    --focus-outline: 3px solid #d33682;
+    --grid-line-color: #93a1a1;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Menu Styling */
+.menu-screen {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding: 2rem;
+    border: 2px solid var(--text-color);
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+button, select {
+    background-color: #333;
+    color: #fff;
+    border: 2px solid #fff;
+    padding: 1rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+button:hover, button:focus, select:focus {
+    background-color: #555;
+    outline: var(--focus-outline);
+}
+
+/* Game Container */
+#game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+}
+
+#game-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+#game-status {
+    min-height: 1.5em;
+    margin-bottom: 1rem;
+    font-style: italic;
+    color: #ffff00;
+}
+
+/* Grid / Board */
+#game-board {
+    display: grid;
+    gap: 2px;
+    background-color: var(--grid-line-color); /* Grid lines color */
+    border: 4px solid var(--text-color);
+    width: 90vmin;
+    height: 90vmin;
+    max-width: 600px;
+    max-height: 600px;
+    margin-bottom: 1rem;
+}
+
+#game-board:focus {
+    outline: none; /* Opcional: quita el borde de selección si ya tienes estilos visuales claros */
+    border-color: var(--focus-outline); /* O cambia el color del borde para indicar que está activo */
+}
+
+.cell {
+    background-color: var(--path-color); /* Default path color */
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.wall {
+    background-color: var(--wall-color);
+}
+
+.player {
+    background-color: var(--player-color);
+    border-radius: 50%;
+    transform: scale(0.8);
+}
+
+.goal {
+    background-color: var(--goal-color);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%); /* Triangle shape */
+    transform: scale(0.8);
+}
+
+.flag {
+    /* Overlay a flag icon or color on top of the cell */
+    background-image: linear-gradient(135deg, var(--flag-color) 25%, transparent 25%), 
+                      linear-gradient(225deg, var(--flag-color) 25%, transparent 25%), 
+                      linear-gradient(45deg, var(--flag-color) 25%, transparent 25%), 
+                      linear-gradient(315deg, var(--flag-color) 25%, transparent 25%);
+    background-position: 10px 0, 10px 0, 0 0, 0 0;
+    background-size: 20px 20px;
+    background-repeat: repeat;
+    opacity: 0.8;
+}
+
+/* Controls Hint */
+.controls-hint {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #ccc;
+    border-top: 1px solid #555;
+    padding-top: 1rem;
+}
+
+/* High Contrast Focus for Accessibility */
+*:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: 2px;
+}
+
+/* Confetti Animation */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fall linear forwards;
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(100vh) rotate(720deg);
+    }
+}
+
+/* Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .confetti {
+        display: none; /* Disable confetti entirely for reduced motion */
+    }
+}

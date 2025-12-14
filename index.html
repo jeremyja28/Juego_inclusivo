@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Walker - Juego de Laberinto Accesible</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Echo Walker</h1>
+    </header>
+
+    <main>
+        <!-- Main Menu Screen -->
+        <section id="main-menu" aria-labelledby="menu-heading">
+            <h2 id="menu-heading">Menú Principal</h2>
+            
+            <div class="menu-section">
+                <h3>Modo Campaña</h3>
+                <p>Empieza fácil y aumenta la dificultad progresivamente.</p>
+                <button id="campaign-btn" type="button">Jugar Campaña</button>
+            </div>
+
+            <div class="menu-section">
+                <h3>Modo Libre</h3>
+                <p>Elige tu dificultad.</p>
+                <label for="difficulty-select">Dificultad:</label>
+                <select id="difficulty-select">
+                    <option value="5">Muy Fácil (5x5)</option>
+                    <option value="7">Fácil (7x7)</option>
+                    <option value="10">Medio (10x10)</option>
+                    <option value="15">Difícil (15x15)</option>
+                    <option value="20">Muy Difícil (20x20)</option>
+                    <option value="25">Experto (25x25)</option>
+                </select>
+                <button id="free-play-btn" type="button">Jugar Modo Libre</button>
+            </div>
+
+            <div class="menu-section">
+                <h3>Accesibilidad</h3>
+                <button id="menu-theme-btn" type="button">Tema: Normal</button>
+            </div>
+        </section>
+
+        <!-- Game Container Screen (Hidden by default) -->
+        <div id="game-container" class="hidden" role="application" aria-label="Juego de Laberinto">
+            <!-- Instructions Section -->
+            <section id="instructions" aria-labelledby="instructions-heading">
+                <h2 id="instructions-heading">Instrucciones</h2>
+                <p>Encuentra la salida. Usa las <strong>Flechas</strong> para moverte.</p>
+                <p>Presiona <strong>Espacio</strong> para poner una Bandera (Referencia).</p>
+            </section>
+
+            <!-- Game Controls -->
+            <section id="controls">
+                <div id="level-indicator" aria-live="polite" style="font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: bold;"></div>
+                
+                <div style="display: flex; justify-content: space-around; width: 100%; margin-bottom: 1rem;">
+                    <div id="timer-display" style="font-size: 2rem; font-family: monospace; border: 2px solid white; padding: 0.5rem;">00:00</div>
+                    <div id="best-time-display" style="font-size: 1.2rem; align-self: center;">Mejor: --:--</div>
+                </div>
+
+                <button id="mic-btn" type="button" aria-pressed="false">Activar Voz</button>
+                <button id="music-btn" type="button">Música: ON</button>
+                <button id="theme-btn" type="button">Tema: Normal</button>
+                <button id="back-menu-btn" type="button">Volver al Menú</button>
+            </section>
+
+            <!-- Game Board Area -->
+            <div id="game-board" aria-label="Tablero de juego" tabindex="0"></div>
+
+            <!-- ARIA Live Region -->
+            <div id="game-status" role="status" aria-live="assertive" class="sr-only"></div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
