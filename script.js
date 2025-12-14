@@ -173,6 +173,17 @@ function playSound(type, frequencyOverride = null, panValue = 0) {
 
     const now = audioCtx.currentTime;
 
+    // --- Haptic Feedback (Vibration) ---
+    if (navigator.vibrate) {
+        if (type === 'wall') {
+            navigator.vibrate(200); // Strong vibration for collision
+        } else if (type === 'flag-plant') {
+            navigator.vibrate(50); // Short tick
+        } else if (type === 'win') {
+            navigator.vibrate([100, 50, 100, 50, 200]); // Victory pattern
+        }
+    }
+
     if (type === 'step') {
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequencyOverride || 300, now);
@@ -891,12 +902,16 @@ let touchStartX = 0;
 let touchStartY = 0;
 let lastTapTime = 0;
 const DOUBLE_TAP_DELAY = 300; // ms
-const SWIPE_THRESHOLD = 30; // px
+const SWIPE_THRESHOLD = 20; // px (Lowered for better sensitivity)
 
 function handleTouchStart(e) {
     if (!isGameActive) return;
+    
     // Prevent default to stop scrolling/zooming while playing
-    if (e.cancelable) e.preventDefault();
+    // We check if the target is NOT a button to allow clicking UI controls if needed
+    if (e.target.tagName !== 'BUTTON' && e.cancelable) {
+        e.preventDefault();
+    }
     
     const touch = e.changedTouches[0];
     touchStartX = touch.screenX;
@@ -905,7 +920,10 @@ function handleTouchStart(e) {
 
 function handleTouchEnd(e) {
     if (!isGameActive) return;
-    if (e.cancelable) e.preventDefault();
+    
+    if (e.target.tagName !== 'BUTTON' && e.cancelable) {
+        e.preventDefault();
+    }
 
     const touch = e.changedTouches[0];
     const deltaX = touch.screenX - touchStartX;
@@ -945,9 +963,9 @@ function handleTouchEnd(e) {
     }
 }
 
-// Add Touch Listeners
-gameBoard.addEventListener('touchstart', handleTouchStart, {passive: false});
-gameBoard.addEventListener('touchend', handleTouchEnd, {passive: false});
+// Add Touch Listeners to DOCUMENT to capture swipes anywhere
+document.addEventListener('touchstart', handleTouchStart, {passive: false});
+document.addEventListener('touchend', handleTouchEnd, {passive: false});
 
 // Event Listeners
 document.addEventListener('keydown', (e) => {

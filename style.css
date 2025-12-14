@@ -48,6 +48,9 @@ body {
     align-items: center;
     min-height: 100vh;
     text-align: center;
+    /* Prevent default touch actions (scrolling, zooming) to allow JS to handle swipes */
+    touch-action: none;
+    overscroll-behavior: none;
 }
 
 h1 {
