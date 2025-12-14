@@ -63,7 +63,7 @@ Este proyecto utiliza APIs modernas del navegador.
 
 1.  **Clonar el repositorio:**
     `ash
-    git clone https://github.com/tu-usuario/echo-walker.git
+    git clone https://github.com/jeremyja28/Juego_inclusivo.git
     ` 
 2.  **Ejecutar:**
     Debido a las políticas de seguridad del navegador (CORS) para la API de Voz y Audio, es necesario ejecutar el proyecto en un servidor local.
@@ -75,7 +75,8 @@ Este proyecto utiliza APIs modernas del navegador.
 ##  Cumplimiento Normativo
 
 Echo Walker ha sido auditado para cumplir con los estándares **WCAG 2.1 Nivel AA y AAA**:
-*   Semántica HTML5 correcta (ole="application", ria-label, ria-live).
+*   Semántica HTML5 correcta (
+ole="application", ria-label, ria-live).
 *   Contraste de color superior a 7:1 en modo Alto Contraste.
 *   Soporte para prefers-reduced-motion.
 *   Navegable 100% por teclado.
